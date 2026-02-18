@@ -132,6 +132,21 @@ button.secondary {
   margin-bottom: 10px;
 }
 
+.tasks-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.tasks-header h3 {
+  margin-bottom: 0;
+}
+
+.tasks-header button {
+  width: auto;
+}
+
 .task-form {
   display: flex;
   gap: 10px;

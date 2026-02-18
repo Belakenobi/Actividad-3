@@ -1,1 +1,9 @@
-[]
+[
+  {
+    "id": 1771440590346,
+    "titulo": "fix what you can fix",
+    "descripcion": "new button, new interface",
+    "completada": false,
+    "createdAt": "2026-02-18T18:49:50.346Z"
+  }
+]

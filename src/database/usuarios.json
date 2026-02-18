@@ -8,5 +8,20 @@
     "id": 1771357323753,
     "username": "isa",
     "password": "$2b$10$6KZ3jbzer4.GpuQ6VsXlYeyh6nSl7bSsg9to8UihlMPR0q8ul1H5q"
+  },
+  {
+    "id": 1771440343170,
+    "username": "test",
+    "password": "$2b$10$ymq62WdsgAsjSVTgs3vlsOG5FZz2yVH5IkYcEaCaWxP..IIZl4lw2"
+  },
+  {
+    "id": 1771440514732,
+    "username": "Katia",
+    "password": "$2b$10$0NzT9JowqRqJsYH/p026oupmJqKoFF9qB1JoxRbyELBBnwX4evDri"
+  },
+  {
+    "id": 1771441058665,
+    "username": "Arthur",
+    "password": "$2b$10$9YXsEKItclZbZuZwVH.C2OrM197aLNrTi7EMW53i9/zdBvs0A0kKy"
   }
 ]

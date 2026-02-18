@@ -18,11 +18,13 @@
       <input type="password" id="password" placeholder="Contraseña">
       <button onclick="handleAuth()" id="auth-btn">Iniciar Sesión</button>
       <button class="secondary" onclick="toggleAuthMode()" id="toggle-auth-btn">¿No tienes cuenta? Regístrate</button>
-      <button class="secondary" onclick="logout()" id="logout-btn" class="hidden">Cerrar Sesión</button>
     </div>
 
     <div id="tasks-section" class="tasks-section hidden">
-      <h3>Mis Tareas</h3>
+      <div class="tasks-header">
+        <h3>Mis Tareas</h3>
+        <button class="secondary" onclick="logout()" id="logout-btn">Cerrar Sesión</button>
+      </div>
       <p class="error" id="task-error"></p>
       <div class="task-form">
         <input type="text" id="task-title" placeholder="Título de la tarea">
