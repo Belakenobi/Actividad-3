@@ -1,10 +1,10 @@
 const API_URL = 'http://localhost:3000';
 let token = localStorage.getItem('token');
 let isRegisterMode = false;
-let editingTaskId = null;
+let editingEntryId = null;
 
 if (token) {
-  showTasksSection();
+  showEntriesSection();
 }
 
 function toggleAuthMode() {
@@ -41,168 +41,178 @@ async function handleAuth() {
     } else {
       token = data.token;
       localStorage.setItem('token', token);
-      showTasksSection();
+      showEntriesSection();
     }
   } catch (error) {
     document.getElementById('auth-error').textContent = 'Error de conexión';
   }
 }
 
-function showTasksSection() {
+function showEntriesSection() {
   document.getElementById('auth-section').classList.add('hidden');
-  document.getElementById('tasks-section').classList.remove('hidden');
-  loadTasks();
+  document.getElementById('entries-section').classList.remove('hidden');
+  loadEntries();
 }
 
 function logout() {
   token = null;
   localStorage.removeItem('token');
   document.getElementById('auth-section').classList.remove('hidden');
-  document.getElementById('tasks-section').classList.add('hidden');
+  document.getElementById('entries-section').classList.add('hidden');
   document.getElementById('username').value = '';
   document.getElementById('password').value = '';
 }
 
-async function loadTasks() {
+async function loadEntries() {
   try {
-    const res = await fetch(`${API_URL}/tareas`, {
+    const res = await fetch(`${API_URL}/entradas`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     if (res.status === 401) {
       logout();
       return;
     }
-    const tareas = await res.json();
-    renderTasks(tareas);
+    const entradas = await res.json();
+    renderEntries(entradas);
   } catch (error) {
-    document.getElementById('task-error').textContent = 'Error al cargar tareas';
+    document.getElementById('entry-error').textContent = 'Error al cargar entradas';
   }
 }
 
-function renderTasks(tareas) {
-  const container = document.getElementById('tasks-list');
-  container.innerHTML = tareas.map(tarea => `
-    <div class="task ${tarea.completada ? 'completed' : ''}">
-      ${editingTaskId === tarea.id ? `
+function formatDate(isoString) {
+  const date = new Date(isoString);
+  return date.toLocaleDateString('es-ES', { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
+
+function renderEntries(entradas) {
+  const container = document.getElementById('entries-list');
+  if (entradas.length === 0) {
+    container.innerHTML = '<p class="empty-message">No hay entradas todavía. ¡Escribe tu primera entrada!</p>';
+    return;
+  }
+  
+  container.innerHTML = entradas.map(entrada => `
+    <div class="entry">
+      ${editingEntryId === entrada.id ? `
         <div class="edit-form">
-          <input type="text" id="edit-titulo-${tarea.id}" value="${tarea.titulo}" placeholder="Título">
-          <input type="text" id="edit-desc-${tarea.id}" value="${tarea.descripcion || ''}" placeholder="Descripción">
-          <button onclick="editTask(${tarea.id})">Guardar</button>
-          <button class="secondary" onclick="showEditForm(${tarea.id})">Cancelar</button>
+          <input type="text" id="edit-titulo-${entrada.id}" value="${entrada.titulo}" placeholder="Título">
+          <textarea id="edit-contenido-${entrada.id}" placeholder="Contenido">${entrada.contenido}</textarea>
+          <input type="text" id="edit-etiquetas-${entrada.id}" value="${entrada.etiquetas.join(', ')}" placeholder="Etiquetas (separadas por coma)">
+          <button onclick="editEntry(${entrada.id})">Guardar</button>
+          <button class="secondary" onclick="showEditForm(${entrada.id})">Cancelar</button>
         </div>
       ` : `
-        <div class="task-header">
-          <span class="task-title">${tarea.titulo}</span>
-          <div class="task-actions">
-            <button class="btn-toggle" onclick="toggleTask(${tarea.id})">${tarea.completada ? 'Deshacer' : 'Completar'}</button>
-            <button class="btn-edit" onclick="showEditForm(${tarea.id})">Editar</button>
-            <button class="btn-delete" onclick="deleteTask(${tarea.id})">Eliminar</button>
+        <div class="entry-header">
+          <span class="entry-title">${entrada.titulo}</span>
+          <div class="entry-actions">
+            <button class="btn-edit" onclick="showEditForm(${entrada.id})">Editar</button>
+            <button class="btn-delete" onclick="deleteEntry(${entrada.id})">Eliminar</button>
           </div>
         </div>
-        ${tarea.descripcion ? `<p>${tarea.descripcion}</p>` : ''}
+        <p class="entry-date">${formatDate(entrada.fecha)}</p>
+        <p class="entry-content">${entrada.contenido}</p>
+        ${entrada.etiquetas.length > 0 ? `
+          <div class="entry-tags">
+            ${entrada.etiquetas.map(tag => `<span class="tag">#${tag}</span>`).join('')}
+          </div>
+        ` : ''}
       `}
     </div>
   `).join('');
 }
 
-async function createTask() {
-  const titulo = document.getElementById('task-title').value;
-  const descripcion = document.getElementById('task-desc').value;
+async function createEntry() {
+  const titulo = document.getElementById('entry-title').value;
+  const contenido = document.getElementById('entry-content').value;
+  const etiquetasInput = document.getElementById('entry-tags').value;
 
-  if (!titulo.trim()) {
-    document.getElementById('task-error').textContent = 'El título es obligatorio';
+  if (!titulo.trim() || !contenido.trim()) {
+    document.getElementById('entry-error').textContent = 'El título y contenido son obligatorios';
     return;
   }
 
+  const etiquetas = etiquetasInput.split(',').map(t => t.trim()).filter(t => t);
+
   try {
-    const res = await fetch(`${API_URL}/tareas`, {
+    const res = await fetch(`${API_URL}/entradas`, {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({ titulo, descripcion })
+      body: JSON.stringify({ titulo, contenido, etiquetas })
     });
 
     if (res.ok) {
-      document.getElementById('task-title').value = '';
-      document.getElementById('task-desc').value = '';
-      document.getElementById('task-error').textContent = '';
-      loadTasks();
+      document.getElementById('entry-title').value = '';
+      document.getElementById('entry-content').value = '';
+      document.getElementById('entry-tags').value = '';
+      document.getElementById('entry-error').textContent = '';
+      loadEntries();
     }
   } catch (error) {
-    document.getElementById('task-error').textContent = 'Error al crear tarea';
+    document.getElementById('entry-error').textContent = 'Error al crear entrada';
   }
 }
 
-async function toggleTask(id) {
+async function deleteEntry(id) {
+  if (!confirm('¿Estás seguro de que quieres eliminar esta entrada?')) return;
+  
   try {
-    const res = await fetch(`${API_URL}/tareas`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    const tareas = await res.json();
-    const tarea = tareas.find(t => t.id === id);
-
-    await fetch(`${API_URL}/tareas/${id}`, {
-      method: 'PUT',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ completada: !tarea.completada })
-    });
-    loadTasks();
-  } catch (error) {
-    document.getElementById('task-error').textContent = 'Error al actualizar tarea';
-  }
-}
-
-async function deleteTask(id) {
-  try {
-    await fetch(`${API_URL}/tareas/${id}`, {
+    await fetch(`${API_URL}/entradas/${id}`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` }
     });
-    loadTasks();
+    loadEntries();
   } catch (error) {
-    document.getElementById('task-error').textContent = 'Error al eliminar tarea';
+    document.getElementById('entry-error').textContent = 'Error al eliminar entrada';
   }
 }
 
 function showEditForm(id) {
-  if (editingTaskId === id) {
-    editingTaskId = null;
-    loadTasks();
+  if (editingEntryId === id) {
+    editingEntryId = null;
+    loadEntries();
     return;
   }
-  editingTaskId = id;
-  loadTasks();
+  editingEntryId = id;
+  loadEntries();
 }
 
-async function editTask(id) {
+async function editEntry(id) {
   const titulo = document.getElementById(`edit-titulo-${id}`).value;
-  const descripcion = document.getElementById(`edit-desc-${id}`).value;
+  const contenido = document.getElementById(`edit-contenido-${id}`).value;
+  const etiquetasInput = document.getElementById(`edit-etiquetas-${id}`).value;
 
-  if (!titulo.trim()) {
-    document.getElementById('task-error').textContent = 'El título es obligatorio';
+  if (!titulo.trim() || !contenido.trim()) {
+    document.getElementById('entry-error').textContent = 'El título y contenido son obligatorios';
     return;
   }
 
+  const etiquetas = etiquetasInput.split(',').map(t => t.trim()).filter(t => t);
+
   try {
-    const res = await fetch(`${API_URL}/tareas/${id}`, {
+    const res = await fetch(`${API_URL}/entradas/${id}`, {
       method: 'PUT',
       headers: { 
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({ titulo, descripcion })
+      body: JSON.stringify({ titulo, contenido, etiquetas })
     });
 
     if (res.ok) {
-      editingTaskId = null;
-      loadTasks();
+      editingEntryId = null;
+      loadEntries();
     }
   } catch (error) {
-    document.getElementById('task-error').textContent = 'Error al editar tarea';
+    document.getElementById('entry-error').textContent = 'Error al editar entrada';
   }
 }

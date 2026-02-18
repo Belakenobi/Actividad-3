@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>API Tareas</title>
+  <title>Mi Diario</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
   <div class="container">
-    <h1>Lista de Tareas</h1>
+    <h1>Mi Diario Personal</h1>
     
     <div id="auth-section" class="auth-section">
       <h3 id="auth-title">Iniciar Sesión</h3>
@@ -20,18 +20,19 @@
       <button class="secondary" onclick="toggleAuthMode()" id="toggle-auth-btn">¿No tienes cuenta? Regístrate</button>
     </div>
 
-    <div id="tasks-section" class="tasks-section hidden">
-      <div class="tasks-header">
-        <h3>Mis Tareas</h3>
+    <div id="entries-section" class="entries-section hidden">
+      <div class="entries-header">
+        <h3>Mis Entradas</h3>
         <button class="secondary" onclick="logout()" id="logout-btn">Cerrar Sesión</button>
       </div>
-      <p class="error" id="task-error"></p>
-      <div class="task-form">
-        <input type="text" id="task-title" placeholder="Título de la tarea">
-        <input type="text" id="task-desc" placeholder="Descripción">
-        <button onclick="createTask()">Agregar</button>
+      <p class="error" id="entry-error"></p>
+      <div class="entry-form">
+        <input type="text" id="entry-title" placeholder="Título de la entrada">
+        <textarea id="entry-content" placeholder="¿Qué estás pensando hoy?"></textarea>
+        <input type="text" id="entry-tags" placeholder="Etiquetas (separadas por coma)">
+        <button onclick="createEntry()">Publicar</button>
       </div>
-      <div id="tasks-list"></div>
+      <div id="entries-list"></div>
     </div>
   </div>
 
