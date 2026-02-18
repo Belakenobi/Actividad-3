@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Tareas</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Lista de Tareas</h1>
+    
+    <div id="auth-section" class="auth-section">
+      <h3 id="auth-title">Iniciar Sesión</h3>
+      <p class="error" id="auth-error"></p>
+      <p class="success" id="auth-success"></p>
+      <input type="text" id="username" placeholder="Usuario">
+      <input type="password" id="password" placeholder="Contraseña">
+      <button onclick="handleAuth()" id="auth-btn">Iniciar Sesión</button>
+      <button class="secondary" onclick="toggleAuthMode()" id="toggle-auth-btn">¿No tienes cuenta? Regístrate</button>
+      <button class="secondary" onclick="logout()" id="logout-btn" class="hidden">Cerrar Sesión</button>
+    </div>
+
+    <div id="tasks-section" class="tasks-section hidden">
+      <h3>Mis Tareas</h3>
+      <p class="error" id="task-error"></p>
+      <div class="task-form">
+        <input type="text" id="task-title" placeholder="Título de la tarea">
+        <input type="text" id="task-desc" placeholder="Descripción">
+        <button onclick="createTask()">Agregar</button>
+      </div>
+      <div id="tasks-list"></div>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
